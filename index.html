@@ -182,7 +182,7 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
       message.textContent = 'Nice! +2s';
       feedbackTimeout = setTimeout(() => {
         message.textContent = 'Find the odd tile!';
-      }, 3000);
+      }, 1500);
       nextRound();
     } else {
       timer = Math.max(0, timer - 5);
@@ -190,7 +190,7 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
       message.textContent = 'Wrong tile! -5s';
       feedbackTimeout = setTimeout(() => {
         message.textContent = 'Find the odd tile!';
-      }, 3000);
+      }, 1500);
       if(timer <= 0) endGame();
     }
   }
