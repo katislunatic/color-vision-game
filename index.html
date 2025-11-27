@@ -9,84 +9,83 @@
 <title>Color-Vision Game</title>
 
 <style>
-  :root{
-    --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
-  }
-  html,body{
-    height:100%;
-    margin:0;
-    overflow:hidden;
-    touch-action:none;
-    font-family:Inter,system-ui,Segoe UI,Arial;
-    background:linear-gradient(180deg,#071022 0%, #0e1622 100%);
-    color:var(--text);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .container{width:100%;max-width:980px;padding:20px;box-sizing:border-box}
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-  h1{font-size:20px;margin:0}
-  .meta{display:flex;gap:12px;align-items:center}
-  .btn{
-    background:#1f2937;
-    border:0;
-    color:var(--text);
-    padding:8px 12px;
-    border-radius:8px;
-    cursor:pointer;
-    text-decoration:none;
-  }
-  .scoreboard{display:flex;gap:12px;align-items:center}
-  .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-  #board-wrap{display:flex;justify-content:center;align-items:center;margin-top:14px}
-  #board{display:grid;gap:6px;touch-action:manipulation;}
-  button.tile{width:64px;height:64px;border-radius:8px;border:0;outline:0;cursor:pointer;display:block;padding:0}
-  .controls{display:flex;gap:10px;align-items:center;margin-left:8px}
-  .small{font-size:13px;color:#9fb0c8}
-
-  @media (max-width:520px){
-    button.tile{width:44px;height:44px}
-    header{flex-direction:column;align-items:flex-start;gap:8px}
-  }
+:root{
+  --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
+}
+html,body{
+  height:100%;
+  margin:0;
+  overflow:hidden;
+  touch-action:none;
+  font-family:Inter,system-ui,Segoe UI,Arial;
+  background:linear-gradient(180deg,#071022 0%, #0e1622 100%);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.container {width:100%; max-width:980px; padding:20px; box-sizing:border-box;}
+header {display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+h1 {font-size:20px; margin:0;}
+.meta {display:flex; gap:12px; align-items:center; flex-wrap: wrap;}
+.btn {
+  background:#1f2937;
+  border:0;
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  text-decoration:none;
+}
+.scoreboard {display:flex; gap:12px; align-items:center;}
+.card {background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+#board-wrap {display:flex; justify-content:center; align-items:center; margin-top:14px; width:100%;}
+#board {display:grid; gap:6px; touch-action: manipulation; width:100%; max-width:480px;}
+button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:block; width:100%; aspect-ratio:1/1;}
+.controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
+.small {font-size:13px; color:#9fb0c8;}
+@media (max-width:520px){
+  header {flex-direction: column; align-items:flex-start; gap:8px;}
+}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-  <header>
-    <div>
-      <h1>Color-Vision Game</h1>
-      <div class="small">Tap the tile that is slightly different.</div>
-    </div>
-
-    <div class="meta">
-
-      <!-- 🔥 Hard Mode Button -->
-      <a href="./hard/" class="btn">Hard Mode</a>
-
-      <div class="scoreboard card">
-        <div>Score: <strong id="score">0</strong></div>
-        <div>Level: <strong id="level">1</strong></div>
-        <div>Time: <strong id="time">60</strong>s</div>
-      </div>
-
-      <div class="controls">
-        <button id="startBtn" class="btn">Start</button>
-        <button id="resetBtn" class="btn">Reset</button>
-      </div>
-    </div>
-  </header>
-
-  <div id="board-wrap">
-    <div id="board" aria-live="polite"></div>
+<header>
+  <div>
+    <h1>Color-Vision Game</h1>
+    <div class="small">Tap the tile that is slightly different.</div>
   </div>
 
-  <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <div class="card small" style="padding:8px">Best: <span id="best">0</span></div>
-    <div class="card small" id="message" style="padding:8px">Press Start to play.</div>
+  <div class="meta">
+
+    <!-- Hard Mode Button -->
+    <a href="./hard/" class="btn">Hard Mode</a>
+
+    <div class="scoreboard card">
+      <div>Score: <strong id="score">0</strong></div>
+      <div>Level: <strong id="level">1</strong></div>
+      <div>Time: <strong id="time">60</strong>s</div>
+      <div>Best: <strong id="best">0</strong></div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="btn">Start</button>
+      <button id="resetBtn" class="btn">Reset</button>
+    </div>
   </div>
+</header>
+
+<div id="board-wrap">
+  <div id="board" aria-live="polite"></div>
+</div>
+
+<div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+  <div class="card small" id="message" style="padding:8px">Press Start to play.</div>
+</div>
+
 </div>
 
 <script>
@@ -95,23 +94,19 @@
   const scoreEl = document.getElementById('score');
   const levelEl = document.getElementById('level');
   const timeEl = document.getElementById('time');
+  const bestEl = document.getElementById('best');
   const startBtn = document.getElementById('startBtn');
   const resetBtn = document.getElementById('resetBtn');
   const message = document.getElementById('message');
-  const bestEl = document.getElementById('best');
 
   let score = 0, level = 1, timer = 60, timerId = null;
   let gridSize = 2, difficulty = 0.25;
 
-  // Normal mode best
   let best = Number(localStorage.getItem('kukubest') || 0);
   bestEl.textContent = best;
 
   function startGame(){
-    score = 0;
-    level = 1;
-    timer = 60;
-
+    score = 0; level = 1; timer = 60;
     updateUI();
     nextRound();
 
@@ -127,35 +122,26 @@
   }
 
   function resetGame(){
-    score = 0;
-    level = 1;
-    timer = 60;
-
+    score = 0; level = 1; timer = 60;
     updateUI();
     board.innerHTML = '';
-
     if(timerId) clearInterval(timerId);
     timerId = null;
-
     startBtn.disabled = false;
     message.textContent = "Press Start to play.";
-
     buildStarterBoard();
   }
 
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
-
     message.textContent = `Game over — Score: ${score}`;
-
     if(score > best){
       best = score;
       localStorage.setItem('kukubest', best);
       bestEl.textContent = best;
       message.textContent += " — New best!";
     }
-
     startBtn.disabled = false;
   }
 
@@ -175,7 +161,6 @@
     const hue = Math.floor(Math.random()*360);
     const sat = 60 + Math.random()*20;
     const light = 40 + Math.random()*20;
-
     const base = `hsl(${hue} ${sat}% ${light}%)`;
     const delta = difficulty * 100;
     const targetLight = light + (Math.random()<0.5 ? delta : -delta);
@@ -202,13 +187,11 @@
       level++;
       timer = Math.min(999, timer + 2);
       updateUI();
-      message.textContent = 'Nice!';
       nextRound();
     } else {
       timer = Math.max(0, timer - 5);
       updateUI();
       message.textContent = 'Wrong tile! -5s';
-
       if(timer<=0) endGame();
     }
   }
@@ -216,12 +199,11 @@
   function buildStarterBoard(){
     board.style.gridTemplateColumns = `repeat(3,1fr)`;
     board.innerHTML = '';
-
     for(let i=0;i<9;i++){
       const b = document.createElement('div');
       b.className = 'card';
-      b.style.width = '64px';
-      b.style.height='64px';
+      b.style.width = '100%';
+      b.style.aspectRatio = '1/1';
       b.style.borderRadius='8px';
       b.style.background = i%8===0 ? '#7ea9ff' : '#5b82e6';
       board.appendChild(b);
@@ -235,6 +217,5 @@
 
 })();
 </script>
-
 </body>
 </html>
