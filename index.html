@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kuku Kube — Find the different tile</title>
+<style>
+  :root{
+    --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial;background:linear-gradient(180deg,#071022 0%, #0e1622 100%);color:var(--text);display:flex;align-items:center;justify-content:center}
+  .container{width:100%;max-width:980px;padding:20px;box-sizing:border-box}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  h1{font-size:20px;margin:0}
+  .meta{display:flex;gap:12px;align-items:center}
+  .btn{background:#1f2937;border:0;color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
+  .scoreboard{display:flex;gap:12px;align-items:center}
+  .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+  #board-wrap{display:flex;justify-content:center;align-items:center;margin-top:14px}
+  #board{display:grid;gap:6px;touch-action: manipulation;}
+  button.tile{width:64px;height:64px;border-radius:8px;border:0;outline:0;cursor:pointer;display:block;padding:0}
+  .controls{display:flex;gap:10px;align-items:center;margin-left:8px}
+  .small{font-size:13px;color:#9fb0c8}
+  @media (max-width:520px){
+    button.tile{width:44px;height:44px}
+    header{flex-direction:column;align-items:flex-start;gap:8px}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Kuku Kube — Find the different tile</h1>
+      <div class="small">Tap / click the tile that is a slightly different color.</div>
+    </div>
+    <div class="meta">
+      <div class="scoreboard card" style="display:flex;gap:12px">
+        <div>Score: <strong id="score">0</strong></div>
+        <div>Level: <strong id="level">1</strong></div>
+        <div>Time: <strong id="time">60</strong>s</div>
+      </div>
+      <div class="controls">
+        <button id="startBtn" class="btn">Start</button>
+        <button id="resetBtn" class="btn">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="board-wrap">
+    <div id="board" aria-live="polite"></div>
+  </div>
+
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div class="card small" style="padding:8px">Best: <span id="best">0</span></div>
+    <div class="card small" id="message" style="padding:8px">Press Start to play.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Game state
+  const board = document.getElementById('board');
+  const scoreEl = document.getElementById('score');
+  const levelEl = document.getElementById('level');
+  const timeEl = document.getElementById('time');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const message = document.getElementById('message');
+  const bestEl = document.getElementById('best');
+
+  let score = 0, level = 1, timer = 60, timerId = null;
+  let gridSize = 2, difficulty = 0.25; // color difference factor
+  let best = Number(localStorage.getItem('kukubest') || 0);
+  bestEl.textContent = best;
+
+  function startGame(){
+    score = 0; level = 1; timer = 60;
+    updateUI();
+    nextRound();
+    if(timerId) clearInterval(timerId);
+    timerId = setInterval(()=>{
+      timer--;
+      timeEl.textContent = timer;
+      if(timer<=0){ endGame(); }
+    },1000);
+    message.textContent = "Find the odd tile!";
+    startBtn.disabled = true;
+  }
+
+  function resetGame(){
+    score = 0; level = 1; timer = 60;
+    updateUI();
+    board.innerHTML = '';
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+    startBtn.disabled = false;
+    message.textContent = "Press Start to play.";
+  }
+
+  function endGame(){
+    if(timerId) clearInterval(timerId); timerId = null;
+    message.textContent = `Game over — Score: ${score}`;
+    if(score > best){ best = score; localStorage.setItem('kukubest', best); bestEl.textContent = best; message.textContent += ' — New best!'; }
+    startBtn.disabled = false;
+  }
+
+  function updateUI(){
+    scoreEl.textContent = score;
+    levelEl.textContent = level;
+    timeEl.textContent = timer;
+  }
+
+  function nextRound(){
+    // Determine grid size from level (2..7)
+    gridSize = Math.min(2 + Math.floor((level-1)/1), 8); // increases quickly
+    // difficulty: how different target color is (smaller = harder)
+    difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
+
+    // build grid
+    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    board.innerHTML = '';
+    // base color HSL
+    const hue = Math.floor(Math.random()*360);
+    const sat = 60 + Math.random()*20; // 60..80
+    const light = 40 + Math.random()*20; // 40..60
+
+    // base color and target color
+    const base = `hsl(${hue} ${sat}% ${light}%)`;
+    // adjust lightness slightly for target
+    const delta = difficulty*100;
+    // vary whether target is lighter or darker
+    const targetLight = light + (Math.random()<0.5 ? delta : -delta);
+
+    const target = `hsl(${hue} ${sat}% ${targetLight}%)`;
+
+    // pick target position
+    const targetIndex = Math.floor(Math.random() * (gridSize*gridSize));
+
+    const total = gridSize*gridSize;
+    for(let i=0;i<total;i++){
+      const btn = document.createElement('button');
+      btn.className = 'tile';
+      btn.type = 'button';
+      btn.style.background = (i===targetIndex) ? target : base;
+      btn.dataset.isTarget = (i===targetIndex) ? '1' : '0';
+      btn.addEventListener('click', onTileClick);
+      // accessibility
+      btn.setAttribute('aria-label', i===targetIndex ? 'different tile' : 'tile');
+      board.appendChild(btn);
+    }
+  }
+
+  function onTileClick(e){
+    const isTarget = e.currentTarget.dataset.isTarget === '1';
+    if(!timerId) return; // game not running
+    if(isTarget){
+      score += Math.max(1, Math.floor(5 + Math.sqrt(level)));
+      level++;
+      // small time bonus
+      timer = Math.min(999, timer + 2);
+      updateUI();
+      message.textContent = 'Nice! Keep going.';
+      nextRound();
+    } else {
+      // penalty
+      timer = Math.max(0, timer - 5);
+      message.textContent = 'Wrong tile! -5s';
+      updateUI();
+      if(timer<=0) endGame();
+    }
+  }
+
+  startBtn.addEventListener('click', startGame);
+  resetBtn.addEventListener('click', resetGame);
+
+  // keyboard: press Enter to start
+  window.addEventListener('keydown', e=>{
+    if(e.key==='Enter' && !timerId) startGame();
+  });
+
+  // initial: render small starter board
+  (function init(){
+    board.style.gridTemplateColumns = `repeat(3,1fr)`;
+    board.innerHTML = '';
+    for(let i=0;i<9;i++){
+      const b = document.createElement('div');
+      b.className = 'card';
+      b.style.width = '64px'; b.style.height='64px'; b.style.borderRadius='8px';
+      b.style.background = i%8===0 ? '#7ea9ff' : '#5b82e6';
+      board.appendChild(b);
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
