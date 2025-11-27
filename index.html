@@ -37,7 +37,20 @@ h1 {font-size:20px; margin:0;}
 .card {background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.6);}
 #board-wrap {display:flex; justify-content:center; align-items:center; margin-top:14px; width:100%;}
 #board {display:grid; gap:6px; touch-action: manipulation; width: 100%; max-width:480px;}
-button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:block; width:100%; aspect-ratio:1/1; font-weight:bold; color:var(--text);}
+button.tile {
+  border-radius:8px; 
+  border:0; 
+  outline:0; 
+  cursor:pointer; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  width:100%; 
+  aspect-ratio:1/1; 
+  font-weight:bold; 
+  color:var(--text); 
+  text-align:center;
+}
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
 .small {font-size:13px; color:#9fb0c8;}
 @media (max-width:520px){
@@ -156,7 +169,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   }
 
   function nextRound(){
-    // Set number of boxes based on level
     let numBoxes;
     if(level===1) numBoxes=4;
     else if(level===2) numBoxes=9;
@@ -222,7 +234,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   }
 
   function buildStarterBoard(){
-    // 3x3 starter board with 2 shades
     const starterGrid = 3;
     board.style.gridTemplateColumns = `repeat(${starterGrid}, 1fr)`;
     board.innerHTML = '';
