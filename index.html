@@ -37,7 +37,9 @@ h1 {font-size:20px; margin:0;}
 .card {background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.6);}
 #board-wrap {display:flex; justify-content:center; align-items:center; margin-top:14px; width:100%;}
 #board {display:grid; gap:6px; touch-action: manipulation; width: 100%; max-width:480px;}
-button.tile {
+
+/* Tiles */
+button.tile, div.tile {
   border-radius:8px; 
   border:0; 
   outline:0; 
@@ -51,6 +53,7 @@ button.tile {
   color:var(--text); 
   text-align:center;
 }
+
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
 .small {font-size:13px; color:#9fb0c8;}
 @media (max-width:520px){
@@ -137,6 +140,7 @@ button.tile {
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
+
     let finalMsg = `Game over — Score: ${score}`;
     if(score > best){
       best = score;
@@ -145,18 +149,23 @@ button.tile {
       finalMsg += " — New best!";
     }
     message.textContent = finalMsg;
+
     showGameOverBoard();
   }
 
+  /* --- GAME OVER BOARD (4 LEVEL-1 STYLE BOXES) --- */
   function showGameOverBoard(){
-    const numBoxes = 4; // Always 4 boxes on game over
-    const gridSize = 2;
+    const gridSize = 2; // 2×2 like level 1
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     board.innerHTML = '';
-    for(let i=0;i<numBoxes;i++){
+
+    const bg = '#3d444c';
+
+    for(let i=0;i<4;i++){
       const b = document.createElement('div');
       b.className = 'tile';
-      b.style.background = '#555';
+      b.style.background = bg;
+      b.style.fontSize = '18px';
       b.textContent = 'GAME OVER';
       board.appendChild(b);
     }
