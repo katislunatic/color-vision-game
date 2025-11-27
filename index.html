@@ -51,7 +51,7 @@ button.tile, div.tile {
   font-weight:bold; 
   color:var(--text); 
   text-align:center;
-  transition: background 1.6s ease; /* fade effect */
+  transition: background 1.6s ease; /* smooth fade */
 }
 
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
@@ -116,13 +116,13 @@ button.tile, div.tile {
   let starterInterval = null;
 
   // -------------------------------
-  // Start Screen Animation (updated)
+  // Start Screen Animation updated (3 seconds)
   // -------------------------------
   function startStarterAnimation(){
     if(starterInterval) clearInterval(starterInterval);
     starterInterval = setInterval(()=>{
       buildStarterBoard();
-    },4000); // changed to 4 seconds
+    },3000); // ← changed to 3 seconds
   }
 
   function startGame(){
@@ -248,7 +248,7 @@ button.tile, div.tile {
       message.textContent = `Nice! +2s`;
       feedbackTimeout = setTimeout(()=>{ 
         if(timerId) message.textContent = 'Find the odd tile!'; 
-      },1500);
+      },2500); // ← feedback lasts 2.5 sec
       nextRound();
     } else {
       timer = Math.max(0, timer - penalty);
@@ -256,13 +256,13 @@ button.tile, div.tile {
       message.textContent = `Wrong tile! -${penalty}s`;
       feedbackTimeout = setTimeout(()=>{ 
         if(timerId) message.textContent = 'Find the odd tile!'; 
-      },1500);
+      },2500); // ← same 2.5 sec
       if(timer<=0) endGame();
     }
   }
 
   // -----------------------------------------
-  // UPDATED FADE + SHADE-VARIATION START BOARD
+  // START SCREEN WITH SHADES + SMOOTH FADING
   // -----------------------------------------
   function buildStarterBoard(){
     const starterGrid = 3;
