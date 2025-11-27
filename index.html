@@ -67,7 +67,7 @@ button.tile, div.tile {
   font-weight:bold; 
   color:var(--text); 
   text-align:center;
-  transition: background 1.6s ease; /* smooth fade */
+  transition: background 1.6s ease;
 }
 
 /* --- feedback box --- */
@@ -125,7 +125,7 @@ button.tile, div.tile {
 </div>
 
 <div style="margin-top:14px; width:100%; display:flex; justify-content:center;">
-  <div class="card small msg-neutral" id="message" style="padding:10px">Press Start to play.</div>
+  <div class="card small msg-neutral" id="message" style="padding:10px">Press Start or Tap a Tile to Begin</div>
 </div>
 
 <script>
@@ -191,7 +191,7 @@ button.tile, div.tile {
     timerId = null;
 
     startBtn.disabled = false;
-    setMessage("Press Start to play.","neutral");
+    setMessage("Press Start or Tap a Tile to Begin","neutral");
     startStarterAnimation();
   }
 
