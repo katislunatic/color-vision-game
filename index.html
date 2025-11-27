@@ -13,7 +13,7 @@
   header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
   h1{font-size:20px;margin:0}
   .meta{display:flex;gap:12px;align-items:center}
-  .btn{background:#1f2937;border:0;color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
+  .btn{background:#1f2937;border:0;color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer;text-decoration:none}
   .scoreboard{display:flex;gap:12px;align-items:center}
   .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
   #board-wrap{display:flex;justify-content:center;align-items:center;margin-top:14px}
@@ -27,6 +27,7 @@
   }
 </style>
 </head>
+
 <body>
 <div class="container">
   <header>
@@ -34,12 +35,17 @@
       <h1>Color-Vision Game</h1>
       <div class="small">Tap the tile that is slightly different.</div>
     </div>
+
     <div class="meta">
+      <!-- 🔥 HARD MODE BUTTON ADDED RIGHT HERE -->
+      <a href="../hard/" class="btn">Hard Mode</a>
+
       <div class="scoreboard card">
         <div>Score: <strong id="score">0</strong></div>
         <div>Level: <strong id="level">1</strong></div>
         <div>Time: <strong id="time">60</strong>s</div>
       </div>
+
       <div class="controls">
         <button id="startBtn" class="btn">Start</button>
         <button id="resetBtn" class="btn">Reset</button>
