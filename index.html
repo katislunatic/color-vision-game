@@ -94,7 +94,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   let score = 0, level = 1, timer = 60, timerId = null;
   let difficulty = 0.25;
   let feedbackTimeout = null;
-
   let best = Number(localStorage.getItem('kukubest') || 0);
   bestEl.textContent = best;
 
@@ -125,13 +124,14 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
-    message.textContent = `Game over — Score: ${score}`;
+    let finalMsg = `Game over — Score: ${score}`;
     if(score > best){
       best = score;
       localStorage.setItem('kukubest', best);
       bestEl.textContent = best;
-      message.textContent += " — New best!";
+      finalMsg += " — New best!";
     }
+    message.textContent = finalMsg; // stays until start clicked
     startBtn.disabled = false;
   }
 
@@ -186,7 +186,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
 
     if(feedbackTimeout) clearTimeout(feedbackTimeout);
 
-    // Increase penalty for higher levels
     let penalty = 5 + Math.floor((level-1)/10);
 
     if(isTarget){
@@ -195,13 +194,17 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
       timer = Math.min(999, timer + 2);
       updateUI();
       message.textContent = `Nice! +2s`;
-      feedbackTimeout = setTimeout(()=>{ message.textContent = 'Find the odd tile!'; },2000);
+      feedbackTimeout = setTimeout(()=>{ 
+        if(timerId) message.textContent = 'Find the odd tile!'; 
+      },2000);
       nextRound();
     } else {
       timer = Math.max(0, timer - penalty);
       updateUI();
       message.textContent = `Wrong tile! -${penalty}s`;
-      feedbackTimeout = setTimeout(()=>{ message.textContent = 'Find the odd tile!'; },2000);
+      feedbackTimeout = setTimeout(()=>{ 
+        if(timerId) message.textContent = 'Find the odd tile!'; 
+      },2000);
       if(timer<=0) endGame();
     }
   }
