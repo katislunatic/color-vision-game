@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Color-Vision Game (Hard Mode)</title>
+<style>
+  :root{
+    --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial;background:linear-gradient(180deg,#071022 0%, #0e1622 100%);color:var(--text);display:flex;align-items:center;justify-content:center}
+  .container{width:100%;max-width:980px;padding:20px;box-sizing:border-box}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  h1{font-size:20px;margin:0}
+  .meta{display:flex;gap:12px;align-items:center}
+  .btn{background:#1f2937;border:0;color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
+  .scoreboard{display:flex;gap:12px;align-items:center}
+  .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+  #board-wrap{display:flex;justify-content:center;align-items:center;margin-top:14px}
+  #board{display:grid;gap:6px;touch-action: manipulation;}
+  button.tile{width:64px;height:64px;border-radius:8px;border:0;outline:0;cursor:pointer;display:block;padding:0}
+  .controls{display:flex;gap:10px;align-items:center;margin-left:8px}
+  .small{font-size:13px;color:#9fb0c8}
+  @media (max-width:520px){
+    button.tile{width:44px;height:44px}
+    header{flex-direction:column;align-items:flex-start;gap:8px}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Color-Vision Game — Hard Mode</h1>
+      <div class="small">One wrong click resets the game.</div>
+    </div>
+    <div class="meta">
+      <div class="scoreboard card">
+        <div>Score: <strong id="score">0</strong></div>
+        <div>Level: <strong id="level">1</strong></div>
+        <div>Time: <strong id="time">60</strong>s</div>
+      </div>
+      <div class="controls">
+        <button id="startBtn" class="btn">Start</button>
+        <button id="resetBtn" class="btn">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="board-wrap">
+    <div id="board" aria-live="polite"></div>
+  </div>
+
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div class="card small" id="message" style="padding:8px">Press Start to play.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const board = document.getElementById('board');
+  const scoreEl = document.getElementById('score');
+  const levelEl = document.getElementById('level');
+  const timeEl = document.getElementById('time');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const message = document.getElementById('message');
+
+  let score = 0, level = 1, timer = 60, timerId = null;
+  let gridSize = 2, difficulty = 0.25;
+
+  function startGame(){
+    score = 0; level = 1; timer = 60;
+    updateUI();
+    nextRound();
+    if(timerId) clearInterval(timerId);
+    timerId = setInterval(()=>{
+      timer--;
+      timeEl.textContent = timer;
+      if(timer<=0){ endGame(); }
+    },1000);
+    message.textContent = "Find the odd tile!";
+    startBtn.disabled = true;
+  }
+
+  function resetGame(){
+    fullReset("Game reset.");
+  }
+
+  function fullReset(msg){
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+
+    score = 0;
+    level = 1;
+    timer = 60;
+    updateUI();
+
+    message.textContent = msg;
+    startBtn.disabled = false;
+    buildStarterBoard();
+  }
+
+  function endGame(){
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+    message.textContent = `Time up — Score: ${score}`;
+    startBtn.disabled = false;
+  }
+
+  function updateUI(){
+    scoreEl.textContent = score;
+    levelEl.textContent = level;
+    timeEl.textContent = timer;
+  }
+
+  function nextRound(){
+    gridSize = Math.min(2 + Math.floor((level-1)/1), 8);
+    difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
+
+    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    board.innerHTML = '';
+
+    const hue = Math.floor(Math.random()*360);
+    const sat = 60 + Math.random()*20;
+    const light = 40 + Math.random()*20;
+
+    const base = `hsl(${hue} ${sat}% ${light}%)`;
+    const delta = difficulty * 100;
+    const targetLight = light + (Math.random()<0.5 ? delta : -delta);
+    const target = `hsl(${hue} ${sat}% ${targetLight}%)`;
+
+    const targetIndex = Math.floor(Math.random() * (gridSize*gridSize));
+
+    for(let i=0;i<gridSize*gridSize;i++){
+      const btn = document.createElement('button');
+      btn.className = 'tile';
+      btn.style.background = (i===targetIndex) ? target : base;
+      btn.dataset.isTarget = (i===targetIndex) ? '1' : '0';
+      btn.addEventListener('click', onTileClick);
+      board.appendChild(btn);
+    }
+  }
+
+  function onTileClick(e){
+    const isTarget = e.currentTarget.dataset.isTarget === '1';
+    if(!timerId) return;
+
+    if(isTarget){
+      score += Math.max(1, Math.floor(5 + Math.sqrt(level)));
+      level++;
+      timer = Math.min(999, timer + 2);
+      updateUI();
+      message.textContent = 'Correct!';
+      nextRound();
+    } else {
+      fullReset("Wrong tile! Restarted.");
+    }
+  }
+
+  function buildStarterBoard(){
+    board.style.gridTemplateColumns = `repeat(3,1fr)`;
+    board.innerHTML = '';
+    for(let i=0;i<9;i++){
+      const b = document.createElement('div');
+      b.className = 'card';
+      b.style.width = '64px';
+      b.style.height='64px';
+      b.style.borderRadius='8px';
+      b.style.background = i%8===0 ? '#7ea9ff' : '#5b82e6';
+      board.appendChild(b);
+    }
+  }
+
+  buildStarterBoard();
+
+  startBtn.addEventListener('click', startGame);
+  resetBtn.addEventListener('click', resetGame);
+
+})();
+</script>
+</body>
+</html>
