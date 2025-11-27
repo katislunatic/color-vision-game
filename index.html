@@ -92,7 +92,7 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   const message = document.getElementById('message');
 
   let score = 0, level = 1, timer = 60, timerId = null;
-  let gridSize = 2, difficulty = 0.25;
+  let difficulty = 0.25;
   let feedbackTimeout = null;
 
   let best = Number(localStorage.getItem('kukubest') || 0);
@@ -142,7 +142,19 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   }
 
   function nextRound(){
-    gridSize = Math.min(2 + Math.floor((level-1)/1), 8);
+    // Set number of boxes based on level
+    let numBoxes;
+    if(level===1) numBoxes=4;
+    else if(level===2) numBoxes=9;
+    else if(level===3) numBoxes=16;
+    else if(level===4||level===5) numBoxes=25;
+    else if(level===6||level===7) numBoxes=36;
+    else if(level===8||level===9) numBoxes=49;
+    else numBoxes=64;
+
+    let gridSize = Math.sqrt(numBoxes);
+
+    // Decrease color difference as level increases
     difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
 
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
@@ -156,9 +168,9 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
     const targetLight = light + (Math.random()<0.5 ? delta : -delta);
     const target = `hsl(${hue} ${sat}% ${targetLight}%)`;
 
-    const targetIndex = Math.floor(Math.random() * (gridSize*gridSize));
+    const targetIndex = Math.floor(Math.random() * numBoxes);
 
-    for(let i=0;i<gridSize*gridSize;i++){
+    for(let i=0;i<numBoxes;i++){
       const btn = document.createElement('button');
       btn.className = 'tile';
       btn.style.background = (i===targetIndex) ? target : base;
@@ -174,24 +186,23 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
 
     if(feedbackTimeout) clearTimeout(feedbackTimeout);
 
+    // Increase penalty for higher levels
+    let penalty = 5 + Math.floor((level-1)/10);
+
     if(isTarget){
       score += Math.max(1, Math.floor(5 + Math.sqrt(level)));
       level++;
       timer = Math.min(999, timer + 2);
       updateUI();
-      message.textContent = 'Nice! +2s';
-      feedbackTimeout = setTimeout(() => {
-        message.textContent = 'Find the odd tile!';
-      }, 2000);
+      message.textContent = `Nice! +2s`;
+      feedbackTimeout = setTimeout(()=>{ message.textContent = 'Find the odd tile!'; },2000);
       nextRound();
     } else {
-      timer = Math.max(0, timer - 5);
+      timer = Math.max(0, timer - penalty);
       updateUI();
-      message.textContent = 'Wrong tile! -5s';
-      feedbackTimeout = setTimeout(() => {
-        message.textContent = 'Find the odd tile!';
-      }, 2000);
-      if(timer <= 0) endGame();
+      message.textContent = `Wrong tile! -${penalty}s`;
+      feedbackTimeout = setTimeout(()=>{ message.textContent = 'Find the odd tile!'; },2000);
+      if(timer<=0) endGame();
     }
   }
 
@@ -217,7 +228,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   }
 
   buildStarterBoard();
-
   startBtn.addEventListener('click', startGame);
   resetBtn.addEventListener('click', resetGame);
 
