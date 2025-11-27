@@ -124,29 +124,27 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
-    let finalMsg = `Score: ${score}`;
+    let finalMsg = `Game over — Score: ${score}`;
     if(score > best){
       best = score;
       localStorage.setItem('kukubest', best);
       bestEl.textContent = best;
       finalMsg += " — New best!";
     }
-    message.textContent = "GAME OVER — Tap a tile to play again!";
+    message.textContent = finalMsg;
     showGameOverBoard();
   }
 
   function showGameOverBoard(){
-    const gridSize = Math.ceil(Math.sqrt(Math.max(4, level*level))); // use at least 4 tiles
-    board.style.gridTemplateColumns = `repeat(${Math.sqrt(gridSize)}, 1fr)`;
+    const numBoxes = Math.max(4, Math.min(64, Math.ceil(Math.pow(level,2))));
+    const gridSize = Math.ceil(Math.sqrt(numBoxes));
+    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     board.innerHTML = '';
-    for(let i=0;i<gridSize;i++){
-      const b = document.createElement('button');
+    for(let i=0;i<numBoxes;i++){
+      const b = document.createElement('div');
       b.className = 'tile';
-      b.style.background = '#555'; // greyish
+      b.style.background = '#555';
       b.textContent = 'GAME OVER';
-      b.addEventListener('click', ()=>{
-        startGame();
-      });
       board.appendChild(b);
     }
   }
@@ -168,7 +166,7 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
     else if(level===8||level===9) numBoxes=49;
     else numBoxes=64;
 
-    let gridSize = Math.sqrt(numBoxes);
+    const gridSize = Math.sqrt(numBoxes);
     difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
 
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
