@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> 
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Color-Vision Game</title>
 <style>
@@ -22,9 +23,20 @@ html,body{
   justify-content:center;
 }
 .container {width:100%; max-width:980px; padding:20px; box-sizing:border-box;}
-header {display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+
+/* CENTERED HEADER */
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
 h1 {font-size:20px; margin:0;}
-.meta {display:flex; gap:12px; align-items:center; flex-wrap: wrap;}
+.meta {display:flex; gap:12px; align-items:center; flex-wrap: wrap; justify-content:center;}
 .btn {
   background:#1f2937;
   border:0;
@@ -89,8 +101,13 @@ button.tile, div.tile {
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
 .small {font-size:13px; color:#9fb0c8;}
 
+/* UPDATED MOBILE */
 @media (max-width:520px){
-  header {flex-direction: column; align-items:flex-start; gap:8px;}
+  header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 </style>
 </head>
@@ -153,7 +170,6 @@ button.tile, div.tile {
     message.className = `card small msg-${type}`;
   }
 
-  // starter animation every 4 seconds
   function startStarterAnimation(){
     if(starterInterval) clearInterval(starterInterval);
     starterInterval = setInterval(()=>{
@@ -212,7 +228,6 @@ button.tile, div.tile {
     showGameOverBoard();
   }
 
-  // GAME OVER BOARD
   function showGameOverBoard(){
     const gridSize = 2;
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
@@ -239,7 +254,6 @@ button.tile, div.tile {
     timeEl.textContent = timer;
   }
 
-  // MAIN GAME
   function nextRound(){
     let numBoxes;
     if(level===1) numBoxes=4;
@@ -312,7 +326,6 @@ button.tile, div.tile {
     }
   }
 
-  // STARTER BOARD (tap to start)
   function buildStarterBoard(){
     const starterGrid = 3;
     board.style.gridTemplateColumns = `repeat(${starterGrid}, 1fr)`;
