@@ -51,6 +51,7 @@ button.tile, div.tile {
   font-weight:bold; 
   color:var(--text); 
   text-align:center;
+  transition: background 0.6s ease; /* fade effect */
 }
 
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
@@ -112,13 +113,16 @@ button.tile, div.tile {
   let best = Number(localStorage.getItem('kukubest') || 0);
   bestEl.textContent = best;
 
-  let starterInterval = null;   // NEW for start screen animation
+  let starterInterval = null;
 
+  // -------------------------------
+  // Start Screen Animation (updated)
+  // -------------------------------
   function startStarterAnimation(){
     if(starterInterval) clearInterval(starterInterval);
     starterInterval = setInterval(()=>{
       buildStarterBoard();
-    },5000);
+    },4000); // changed to 4 seconds
   }
 
   function startGame(){
@@ -210,6 +214,7 @@ button.tile, div.tile {
     const hue = Math.floor(Math.random()*360);
     const sat = 60 + Math.random()*20;
     const light = 40 + Math.random()*20;
+
     const base = `hsl(${hue} ${sat}% ${light}%)`;
     const delta = difficulty * 100;
     const targetLight = light + (Math.random()<0.5 ? delta : -delta);
@@ -256,6 +261,9 @@ button.tile, div.tile {
     }
   }
 
+  // -----------------------------------------
+  // UPDATED FADE + SHADE-VARIATION START BOARD
+  // -----------------------------------------
   function buildStarterBoard(){
     const starterGrid = 3;
     board.style.gridTemplateColumns = `repeat(${starterGrid}, 1fr)`;
@@ -263,16 +271,17 @@ button.tile, div.tile {
 
     const hue = Math.floor(Math.random()*360);
     const sat = 60 + Math.random()*20;
-    const light = 45 + Math.random()*10;
-    const base = `hsl(${hue} ${sat}% ${light}%)`;
-    const target = `hsl(${hue} ${sat}% ${light+10}%)`;
+    const baseLight = 45 + Math.random()*10;
     const targetIndex = Math.floor(Math.random()*9);
 
     for(let i=0;i<9;i++){
-      const b = document.createElement('div');
-      b.className = 'tile';
-      b.style.background = (i===targetIndex) ? target : base;
-      board.appendChild(b);
+      const diff = (i===targetIndex) ? 10 : (Math.random()*6 - 3);
+      const light = baseLight + diff;
+
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.style.background = `hsl(${hue} ${sat}% ${light}%)`;
+      board.appendChild(tile);
     }
   }
 
