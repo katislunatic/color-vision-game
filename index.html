@@ -149,8 +149,8 @@ button.tile {
   }
 
   function showGameOverBoard(){
-    const numBoxes = Math.max(4, Math.min(64, Math.ceil(Math.pow(level,2))));
-    const gridSize = Math.ceil(Math.sqrt(numBoxes));
+    const numBoxes = 4; // Always 4 boxes on game over
+    const gridSize = 2;
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     board.innerHTML = '';
     for(let i=0;i<numBoxes;i++){
