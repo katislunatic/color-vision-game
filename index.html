@@ -116,19 +116,21 @@ button.tile, div.tile {
   let starterInterval = null;
 
   // -------------------------------
-  // Start Screen Animation (3 seconds)
+  // START SCREEN ANIMATION
   // -------------------------------
   function startStarterAnimation(){
     if(starterInterval) clearInterval(starterInterval);
     starterInterval = setInterval(()=>{
       buildStarterBoard();
-    },3000); 
+    },3000);
   }
 
   function startGame(){
     if(starterInterval) clearInterval(starterInterval);
 
-    score = 0; level = 1; timer = 60;
+    score = 0; 
+    level = 1; 
+    timer = 60;
     updateUI();
     nextRound();
 
@@ -144,7 +146,9 @@ button.tile, div.tile {
   }
 
   function resetGame(){
-    score = 0; level = 1; timer = 60;
+    score = 0; 
+    level = 1; 
+    timer = 60;
     updateUI();
     buildStarterBoard();
 
@@ -172,6 +176,9 @@ button.tile, div.tile {
     showGameOverBoard();
   }
 
+  // -------------------------------
+  // GAME OVER board (tap to restart)
+  // -------------------------------
   function showGameOverBoard(){
     const gridSize = 2;
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
@@ -185,6 +192,10 @@ button.tile, div.tile {
       b.style.background = bg;
       b.style.fontSize = '18px';
       b.textContent = 'GAME OVER';
+
+      // TAP ANY GAME-OVER TILE → restart game
+      b.addEventListener('click', startGame);
+
       board.appendChild(b);
     }
   }
@@ -195,6 +206,9 @@ button.tile, div.tile {
     timeEl.textContent = timer;
   }
 
+  // -------------------------------
+  // NORMAL GAME LOGIC
+  // -------------------------------
   function nextRound(){
     let numBoxes;
     if(level===1) numBoxes=4;
@@ -220,7 +234,7 @@ button.tile, div.tile {
     const targetLight = light + (Math.random()<0.5 ? delta : -delta);
     const target = `hsl(${hue} ${sat}% ${targetLight}%)`;
 
-    const targetIndex = Math.floor(Math.random() * numBoxes);
+    const targetIndex = Math.floor(Math.random()*numBoxes);
 
     for(let i=0;i<numBoxes;i++){
       const btn = document.createElement('button');
@@ -261,9 +275,9 @@ button.tile, div.tile {
     }
   }
 
-  // -----------------------------------------
-  // START SCREEN WITH SHADES + TILES START GAME
-  // -----------------------------------------
+  // -------------------------------
+  // STARTER SCREEN (tap to start)
+  // -------------------------------
   function buildStarterBoard(){
     const starterGrid = 3;
     board.style.gridTemplateColumns = `repeat(${starterGrid}, 1fr)`;
@@ -282,7 +296,7 @@ button.tile, div.tile {
       tile.className = 'tile';
       tile.style.background = `hsl(${hue} ${sat}% ${light}%)`;
 
-      // ⭐ NEW: Tap any tile to start the game
+      // TAP ANY STARTER TILE → start game
       tile.addEventListener('click', startGame);
 
       board.appendChild(tile);
