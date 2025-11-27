@@ -104,7 +104,7 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
     if(timerId) clearInterval(timerId);
     timerId = setInterval(()=>{
       timer--;
-      timeEl.textContent = timer;
+      updateUI();
       if(timer<=0) endGame();
     },1000);
     message.textContent = "Find the odd tile!";
@@ -186,13 +186,22 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   }
 
   function buildStarterBoard(){
-    gridSize = 3;
-    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    // 3x3 starter board with 2 shades
+    const starterGrid = 3;
+    board.style.gridTemplateColumns = `repeat(${starterGrid}, 1fr)`;
     board.innerHTML = '';
+
+    const hue = Math.floor(Math.random()*360);
+    const sat = 60 + Math.random()*20;
+    const light = 45 + Math.random()*10;
+    const base = `hsl(${hue} ${sat}% ${light}%)`;
+    const target = `hsl(${hue} ${sat}% ${light+10}%)`;
+    const targetIndex = Math.floor(Math.random()*9);
+
     for(let i=0;i<9;i++){
       const b = document.createElement('div');
       b.className = 'tile';
-      b.style.background = i%8===0 ? '#7ea9ff' : '#5b82e6';
+      b.style.background = (i===targetIndex) ? target : base;
       board.appendChild(b);
     }
   }
