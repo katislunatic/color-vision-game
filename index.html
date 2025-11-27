@@ -34,9 +34,25 @@ h1 {font-size:20px; margin:0;}
   text-decoration:none;
 }
 .scoreboard {display:flex; gap:12px; align-items:center;}
-.card {background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.6);}
-#board-wrap {display:flex; justify-content:center; align-items:center; margin-top:14px; width:100%;}
-#board {display:grid; gap:6px; touch-action: manipulation; width: 100%; max-width:480px;}
+.card {
+  background:rgba(255,255,255,0.03);
+  padding:16px;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(2,6,23,0.6);
+}
+
+#board-wrap {
+  display:flex; justify-content:center; align-items:center;
+  margin-top:14px; width:100%;
+}
+
+#board {
+  display:grid;
+  gap:6px;
+  touch-action: manipulation;
+  width: 100%;
+  max-width:480px;
+}
 
 button.tile, div.tile {
   border-radius:8px; 
@@ -54,8 +70,24 @@ button.tile, div.tile {
   transition: background 1.6s ease; /* smooth fade */
 }
 
+/* --- feedback box --- */
+#message {
+  font-size:15px;
+  text-align:center;
+  min-width: 240px;
+  margin: 0 auto;
+  align-self: center;
+  margin-top: 20px;
+}
+
+/* message colors */
+.msg-neutral { color:#cfd9ea; }
+.msg-good    { color:#8bffa4; }
+.msg-bad     { color:#ff7b7b; }
+
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
 .small {font-size:13px; color:#9fb0c8;}
+
 @media (max-width:520px){
   header {flex-direction: column; align-items:flex-start; gap:8px;}
 }
@@ -92,8 +124,8 @@ button.tile, div.tile {
   <div id="board" aria-live="polite"></div>
 </div>
 
-<div style="margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-  <div class="card small" id="message" style="padding:8px">Press Start to play.</div>
+<div style="margin-top:14px; width:100%; display:flex; justify-content:center;">
+  <div class="card small msg-neutral" id="message" style="padding:10px">Press Start to play.</div>
 </div>
 
 <script>
@@ -115,14 +147,17 @@ button.tile, div.tile {
 
   let starterInterval = null;
 
-  // -------------------------------
-  // START SCREEN ANIMATION
-  // -------------------------------
+  function setMessage(text, type="neutral"){
+    message.textContent = text;
+    message.className = `card small msg-${type}`;
+  }
+
+  // starter animation every 4 seconds
   function startStarterAnimation(){
     if(starterInterval) clearInterval(starterInterval);
     starterInterval = setInterval(()=>{
       buildStarterBoard();
-    },3000);
+    },4000);
   }
 
   function startGame(){
@@ -141,7 +176,7 @@ button.tile, div.tile {
       if(timer<=0) endGame();
     },1000);
 
-    message.textContent = "Find the odd tile!";
+    setMessage("Find the odd tile!", "neutral");
     startBtn.disabled = true;
   }
 
@@ -156,7 +191,7 @@ button.tile, div.tile {
     timerId = null;
 
     startBtn.disabled = false;
-    message.textContent = "Press Start to play.";
+    setMessage("Press Start to play.","neutral");
     startStarterAnimation();
   }
 
@@ -171,14 +206,12 @@ button.tile, div.tile {
       bestEl.textContent = best;
       finalMsg += " — New best!";
     }
-    message.textContent = finalMsg;
 
+    setMessage(finalMsg, "bad");
     showGameOverBoard();
   }
 
-  // -------------------------------
-  // GAME OVER board (tap to restart)
-  // -------------------------------
+  // GAME OVER BOARD
   function showGameOverBoard(){
     const gridSize = 2;
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
@@ -193,7 +226,6 @@ button.tile, div.tile {
       b.style.fontSize = '18px';
       b.textContent = 'GAME OVER';
 
-      // TAP ANY GAME-OVER TILE → restart game
       b.addEventListener('click', startGame);
 
       board.appendChild(b);
@@ -206,9 +238,7 @@ button.tile, div.tile {
     timeEl.textContent = timer;
   }
 
-  // -------------------------------
-  // NORMAL GAME LOGIC
-  // -------------------------------
+  // MAIN GAME
   function nextRound(){
     let numBoxes;
     if(level===1) numBoxes=4;
@@ -259,25 +289,29 @@ button.tile, div.tile {
       level++;
       timer = Math.min(999, timer + 2);
       updateUI();
-      message.textContent = `Nice! +2s`;
+
+      setMessage(`Nice! +2s`, "good");
+
       feedbackTimeout = setTimeout(()=>{ 
-        if(timerId) message.textContent = 'Find the odd tile!'; 
+        if(timerId) setMessage('Find the odd tile!',"neutral");
       },2500);
+
       nextRound();
     } else {
       timer = Math.max(0, timer - penalty);
       updateUI();
-      message.textContent = `Wrong tile! -${penalty}s`;
+
+      setMessage(`Wrong tile! -${penalty}s`, "bad");
+
       feedbackTimeout = setTimeout(()=>{ 
-        if(timerId) message.textContent = 'Find the odd tile!'; 
+        if(timerId) setMessage('Find the odd tile!',"neutral");
       },2500);
+
       if(timer<=0) endGame();
     }
   }
 
-  // -------------------------------
-  // STARTER SCREEN (tap to start)
-  // -------------------------------
+  // STARTER BOARD (tap to start)
   function buildStarterBoard(){
     const starterGrid = 3;
     board.style.gridTemplateColumns = `repeat(${starterGrid}, 1fr)`;
@@ -286,17 +320,14 @@ button.tile, div.tile {
     const hue = Math.floor(Math.random()*360);
     const sat = 60 + Math.random()*20;
     const baseLight = 45 + Math.random()*10;
-    const targetIndex = Math.floor(Math.random()*9);
 
     for(let i=0;i<9;i++){
-      const diff = (i===targetIndex) ? 10 : (Math.random()*6 - 3);
+      const diff = (Math.random()*10 - 5);
       const light = baseLight + diff;
 
       const tile = document.createElement('div');
       tile.className = 'tile';
       tile.style.background = `hsl(${hue} ${sat}% ${light}%)`;
-
-      // TAP ANY STARTER TILE → start game
       tile.addEventListener('click', startGame);
 
       board.appendChild(tile);
