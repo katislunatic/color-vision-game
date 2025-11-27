@@ -37,7 +37,7 @@ h1 {font-size:20px; margin:0;}
 .card {background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.6);}
 #board-wrap {display:flex; justify-content:center; align-items:center; margin-top:14px; width:100%;}
 #board {display:grid; gap:6px; touch-action: manipulation; width: 100%; max-width:480px;}
-button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:block; width:100%; aspect-ratio:1/1;}
+button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:block; width:100%; aspect-ratio:1/1; font-weight:bold; color:var(--text);}
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
 .small {font-size:13px; color:#9fb0c8;}
 @media (max-width:520px){
@@ -124,15 +124,31 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
-    let finalMsg = `Game over — Score: ${score}`;
+    let finalMsg = `Score: ${score}`;
     if(score > best){
       best = score;
       localStorage.setItem('kukubest', best);
       bestEl.textContent = best;
       finalMsg += " — New best!";
     }
-    message.textContent = finalMsg; // stays until start clicked
-    startBtn.disabled = false;
+    message.textContent = "GAME OVER — Tap a tile to play again!";
+    showGameOverBoard();
+  }
+
+  function showGameOverBoard(){
+    const gridSize = Math.ceil(Math.sqrt(Math.max(4, level*level))); // use at least 4 tiles
+    board.style.gridTemplateColumns = `repeat(${Math.sqrt(gridSize)}, 1fr)`;
+    board.innerHTML = '';
+    for(let i=0;i<gridSize;i++){
+      const b = document.createElement('button');
+      b.className = 'tile';
+      b.style.background = '#555'; // greyish
+      b.textContent = 'GAME OVER';
+      b.addEventListener('click', ()=>{
+        startGame();
+      });
+      board.appendChild(b);
+    }
   }
 
   function updateUI(){
@@ -153,8 +169,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
     else numBoxes=64;
 
     let gridSize = Math.sqrt(numBoxes);
-
-    // Decrease color difference as level increases
     difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
 
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
