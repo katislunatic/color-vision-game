@@ -93,6 +93,7 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
 
   let score = 0, level = 1, timer = 60, timerId = null;
   let gridSize = 2, difficulty = 0.25;
+  let feedbackTimeout = null;
 
   let best = Number(localStorage.getItem('kukubest') || 0);
   bestEl.textContent = best;
@@ -171,17 +172,26 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
     const isTarget = e.currentTarget.dataset.isTarget === '1';
     if(!timerId) return;
 
+    if(feedbackTimeout) clearTimeout(feedbackTimeout);
+
     if(isTarget){
       score += Math.max(1, Math.floor(5 + Math.sqrt(level)));
       level++;
       timer = Math.min(999, timer + 2);
       updateUI();
+      message.textContent = 'Nice! +2s';
+      feedbackTimeout = setTimeout(() => {
+        message.textContent = 'Find the odd tile!';
+      }, 3000);
       nextRound();
     } else {
       timer = Math.max(0, timer - 5);
       updateUI();
       message.textContent = 'Wrong tile! -5s';
-      if(timer<=0) endGame();
+      feedbackTimeout = setTimeout(() => {
+        message.textContent = 'Find the odd tile!';
+      }, 3000);
+      if(timer <= 0) endGame();
     }
   }
 
