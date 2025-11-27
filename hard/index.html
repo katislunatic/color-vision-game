@@ -2,118 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-
-<!-- Prevent zooming and scrolling -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
 <title>Color-Vision Game — Hard Mode</title>
-
 <style>
-  :root{
-    --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
-  }
-  html,body{
-    height:100%;
-    margin:0;
-    overflow:hidden;
-    touch-action:none;
-    font-family:Inter,system-ui,Segoe UI,Arial;
-    background:linear-gradient(180deg,#071022 0%, #0e1622 100%);
-    color:var(--text);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .container{width:100%;max-width:980px;padding:20px;box-sizing:border-box}
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-  h1{font-size:20px;margin:0}
-  .meta{display:flex;gap:12px;align-items:center}
-  .btn{
-    background:#1f2937;
-    border:0;
-    color:var(--text);
-    padding:8px 12px;
-    border-radius:8px;
-    cursor:pointer;
-    text-decoration:none;
-  }
-  .scoreboard{display:flex;gap:12px;align-items:center}
-  .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-  #board-wrap{display:flex;justify-content:center;align-items:center;margin-top:14px}
-  #board{display:grid;gap:6px;touch-action:manipulation;}
-  button.tile{width:64px;height:64px;border-radius:8px;border:0;outline:0;cursor:pointer;display:block;padding:0}
-  .small{font-size:13px;color:#9fb0c8}
-  @media (max-width:520px){
-    button.tile{width:44px;height:44px}
-    header{flex-direction:column;align-items:flex-start;gap:8px}
-  }
+:root {
+  --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  touch-action: none;
+  font-family: Inter, system-ui, Segoe UI, Arial;
+  background: linear-gradient(180deg,#071022 0%, #0e1622 100%);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container {width: 100%; max-width: 980px; padding: 20px; box-sizing: border-box;}
+header {display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;}
+h1 {font-size: 20px; margin: 0;}
+.meta {display: flex; gap: 12px; align-items: center; flex-wrap: wrap;}
+.btn {
+  background: #1f2937;
+  border: 0;
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+#board-wrap {display: flex; justify-content: center; align-items: center; margin-top: 14px; width: 100%;}
+#board {display: grid; gap: 6px; touch-action: manipulation; width: 100%; max-width: 480px;}
+button.tile {
+  border-radius: 8px;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1/1;
+}
+.small {font-size: 13px; color: #9fb0c8;}
+@media (max-width:520px){
+  header {flex-direction: column; align-items: flex-start; gap: 8px;}
+}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-  <header>
-    <div>
-      <h1>Hard Mode</h1>
-      <div class="small">One mistake resets the entire game.</div>
-    </div>
-
-    <div class="meta">
-
-      <!-- 🔥 BACK BUTTON TO NORMAL MODE -->
-      <a href="../" class="btn">Normal Mode</a>
-
-      <div class="scoreboard card">
-        <div>Score: <strong id="score">0</strong></div>
-        <div>Level: <strong id="level">1</strong></div>
-        <div>Best: <strong id="best">0</strong></div>
-        <div>Time: <strong id="time">60</strong>s</div>
-      </div>
-
-      <button id="startBtn" class="btn">Start</button>
-    </div>
-  </header>
-
-  <div id="board-wrap">
-    <div id="board" aria-live="polite"></div>
+<header>
+  <div>
+    <h1>Hard Mode</h1>
+    <div class="small">One mistake resets the entire game.</div>
   </div>
 
-  <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <div class="card small" id="message" style="padding:8px">Press Start to begin.</div>
+  <div class="meta">
+    <!-- Back button -->
+    <a href="../" class="btn">Normal Mode</a>
+    <button id="startBtn" class="btn">Start</button>
   </div>
+</header>
 
+<div id="board-wrap">
+  <div id="board" aria-live="polite"></div>
+</div>
+
+<div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+  <div class="card small" id="message" style="padding:8px">Press Start to begin.</div>
 </div>
 
 <script>
 (function(){
   const board = document.getElementById('board');
-  const scoreEl = document.getElementById('score');
-  const levelEl = document.getElementById('level');
-  const timeEl = document.getElementById('time');
   const startBtn = document.getElementById('startBtn');
   const message = document.getElementById('message');
-  const bestEl = document.getElementById('best');
 
   let score = 0, level = 1, timer = 60, timerId = null;
   let gridSize = 2, difficulty = 0.25;
-
-  // 🔥 HARD MODE BEST SCORE
-  let best = Number(localStorage.getItem('hardbest') || 0);
-  bestEl.textContent = best;
 
   function startGame(){
     score = 0; level = 1; timer = 60;
     updateUI();
     nextRound();
-
     if(timerId) clearInterval(timerId);
     timerId = setInterval(()=>{
       timer--;
       updateUI();
-      if(timer <= 0){ endGame(); }
+      if(timer <= 0) endGame();
     },1000);
-
     message.textContent = "Find the odd tile!";
     startBtn.disabled = true;
   }
@@ -121,23 +101,12 @@
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
-
     message.textContent = `Game over — Score: ${score}`;
-
-    if(score > best){
-      best = score;
-      localStorage.setItem('hardbest', best);
-      bestEl.textContent = best;
-      message.textContent += " — New best!";
-    }
-
     startBtn.disabled = false;
   }
 
   function updateUI(){
-    scoreEl.textContent = score;
-    levelEl.textContent = level;
-    timeEl.textContent = timer;
+    message.textContent = `Score: ${score} | Level: ${level} | Time: ${timer}s`;
   }
 
   function nextRound(){
@@ -150,15 +119,14 @@
     const hue = Math.floor(Math.random()*360);
     const sat = 60 + Math.random()*20;
     const light = 40 + Math.random()*20;
-
     const base = `hsl(${hue} ${sat}% ${light}%)`;
     const delta = difficulty * 100;
-    const targetLight = light + (Math.random()<0.5 ? delta : -delta);
+    const targetLight = light + (Math.random() < 0.5 ? delta : -delta);
     const target = `hsl(${hue} ${sat}% ${targetLight}%)`;
 
     const targetIndex = Math.floor(Math.random() * (gridSize*gridSize));
 
-    for(let i=0;i<gridSize*gridSize;i++){
+    for(let i=0; i<gridSize*gridSize; i++){
       const btn = document.createElement('button');
       btn.className = 'tile';
       btn.style.background = (i===targetIndex) ? target : base;
@@ -170,18 +138,15 @@
 
   function onTileClick(e){
     if(!timerId) return;
-
     const isTarget = e.currentTarget.dataset.isTarget === '1';
-
     if(isTarget){
       score += Math.max(1, Math.floor(5 + Math.sqrt(level)));
       level++;
       timer = Math.min(999, timer + 2);
       updateUI();
-      message.textContent = "Nice!";
       nextRound();
     } else {
-      // 🔥 HARD MODE — RESET ENTIRE GAME
+      // Hard mode resets game
       score = 0;
       level = 1;
       timer = 60;
