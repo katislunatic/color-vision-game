@@ -2,12 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-
-<!-- Disable zoom + scrolling -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
 <title>Color-Vision Game</title>
-
 <style>
 :root{
   --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
@@ -40,7 +36,7 @@ h1 {font-size:20px; margin:0;}
 .scoreboard {display:flex; gap:12px; align-items:center;}
 .card {background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.6);}
 #board-wrap {display:flex; justify-content:center; align-items:center; margin-top:14px; width:100%;}
-#board {display:grid; gap:6px; touch-action: manipulation; width:100%; max-width:480px;}
+#board {display:grid; gap:6px; touch-action: manipulation; width: 100%; max-width:480px;}
 button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:block; width:100%; aspect-ratio:1/1;}
 .controls {display:flex; gap:10px; align-items:center; margin-left:8px;}
 .small {font-size:13px; color:#9fb0c8;}
@@ -60,8 +56,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   </div>
 
   <div class="meta">
-
-    <!-- Hard Mode Button -->
     <a href="./hard/" class="btn">Hard Mode</a>
 
     <div class="scoreboard card">
@@ -86,8 +80,6 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   <div class="card small" id="message" style="padding:8px">Press Start to play.</div>
 </div>
 
-</div>
-
 <script>
 (function(){
   const board = document.getElementById('board');
@@ -109,14 +101,12 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
     score = 0; level = 1; timer = 60;
     updateUI();
     nextRound();
-
     if(timerId) clearInterval(timerId);
     timerId = setInterval(()=>{
       timer--;
       timeEl.textContent = timer;
       if(timer<=0) endGame();
     },1000);
-
     message.textContent = "Find the odd tile!";
     startBtn.disabled = true;
   }
@@ -124,12 +114,11 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   function resetGame(){
     score = 0; level = 1; timer = 60;
     updateUI();
-    board.innerHTML = '';
+    buildStarterBoard();
     if(timerId) clearInterval(timerId);
     timerId = null;
     startBtn.disabled = false;
     message.textContent = "Press Start to play.";
-    buildStarterBoard();
   }
 
   function endGame(){
@@ -197,14 +186,12 @@ button.tile {border-radius:8px; border:0; outline:0; cursor:pointer; display:blo
   }
 
   function buildStarterBoard(){
-    board.style.gridTemplateColumns = `repeat(3,1fr)`;
+    gridSize = 3;
+    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     board.innerHTML = '';
     for(let i=0;i<9;i++){
       const b = document.createElement('div');
-      b.className = 'card';
-      b.style.width = '100%';
-      b.style.aspectRatio = '1/1';
-      b.style.borderRadius='8px';
+      b.className = 'tile';
       b.style.background = i%8===0 ? '#7ea9ff' : '#5b82e6';
       board.appendChild(b);
     }
