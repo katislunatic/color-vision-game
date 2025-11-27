@@ -101,7 +101,7 @@ button.tile {
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
-    message.textContent = `Game over — Score: ${score}`;
+    message.textContent = `Game over — Score: ${score} | Level: ${level} | Time: ${timer}s`;
     startBtn.disabled = false;
   }
 
