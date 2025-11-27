@@ -38,7 +38,6 @@ h1 {font-size:20px; margin:0;}
 #board-wrap {display:flex; justify-content:center; align-items:center; margin-top:14px; width:100%;}
 #board {display:grid; gap:6px; touch-action: manipulation; width: 100%; max-width:480px;}
 
-/* Tiles */
 button.tile, div.tile {
   border-radius:8px; 
   border:0; 
@@ -113,16 +112,29 @@ button.tile, div.tile {
   let best = Number(localStorage.getItem('kukubest') || 0);
   bestEl.textContent = best;
 
+  let starterInterval = null;   // NEW for start screen animation
+
+  function startStarterAnimation(){
+    if(starterInterval) clearInterval(starterInterval);
+    starterInterval = setInterval(()=>{
+      buildStarterBoard();
+    },5000);
+  }
+
   function startGame(){
+    if(starterInterval) clearInterval(starterInterval);
+
     score = 0; level = 1; timer = 60;
     updateUI();
     nextRound();
+
     if(timerId) clearInterval(timerId);
     timerId = setInterval(()=>{
       timer--;
       updateUI();
       if(timer<=0) endGame();
     },1000);
+
     message.textContent = "Find the odd tile!";
     startBtn.disabled = true;
   }
@@ -131,10 +143,13 @@ button.tile, div.tile {
     score = 0; level = 1; timer = 60;
     updateUI();
     buildStarterBoard();
+
     if(timerId) clearInterval(timerId);
     timerId = null;
+
     startBtn.disabled = false;
     message.textContent = "Press Start to play.";
+    startStarterAnimation();
   }
 
   function endGame(){
@@ -153,9 +168,8 @@ button.tile, div.tile {
     showGameOverBoard();
   }
 
-  /* --- GAME OVER BOARD (4 LEVEL-1 STYLE BOXES) --- */
   function showGameOverBoard(){
-    const gridSize = 2; // 2×2 like level 1
+    const gridSize = 2;
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     board.innerHTML = '';
 
@@ -229,7 +243,7 @@ button.tile, div.tile {
       message.textContent = `Nice! +2s`;
       feedbackTimeout = setTimeout(()=>{ 
         if(timerId) message.textContent = 'Find the odd tile!'; 
-      },2000);
+      },1500);
       nextRound();
     } else {
       timer = Math.max(0, timer - penalty);
@@ -237,7 +251,7 @@ button.tile, div.tile {
       message.textContent = `Wrong tile! -${penalty}s`;
       feedbackTimeout = setTimeout(()=>{ 
         if(timerId) message.textContent = 'Find the odd tile!'; 
-      },2000);
+      },1500);
       if(timer<=0) endGame();
     }
   }
@@ -263,6 +277,7 @@ button.tile, div.tile {
   }
 
   buildStarterBoard();
+  startStarterAnimation();
   startBtn.addEventListener('click', startGame);
   resetBtn.addEventListener('click', resetGame);
 
