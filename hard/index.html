@@ -86,7 +86,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
   display:grid;
   gap:6px;
   width:100%;
-  max-width:480px;
+  max-width:360px;
   touch-action:manipulation;
 }
 
@@ -204,7 +204,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
 
   function startStarterAnimation(){
     if(starterInterval) clearInterval(starterInterval);
-    starterInterval = setInterval(buildStarterBoard, 4000);
+    starterInterval = setInterval(buildStarterBoard, 2500);
   }
 
   function updateUI(){
