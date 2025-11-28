@@ -45,7 +45,7 @@ h1 {font-size:20px; margin:0;}
   display:flex;
   gap:12px;
   flex-wrap: wrap;
-  justify-content:center; /* CENTER META ITEMS */
+  justify-content:center;
   align-items:center;
 }
 .btn {
@@ -61,7 +61,7 @@ h1 {font-size:20px; margin:0;}
   display:flex; 
   gap:12px; 
   align-items:center; 
-  justify-content:center; /* CENTER SCOREBOARD ITEMS */
+  justify-content:center;
 }
 .card {
   background:rgba(255,255,255,0.03);
@@ -99,7 +99,7 @@ button.tile, div.tile {
   transition: background 1.6s ease;
 }
 
-/* --- feedback box --- */
+/* feedback box */
 #message {
   font-size:15px;
   text-align:center;
@@ -109,7 +109,6 @@ button.tile, div.tile {
   margin-top: 20px;
 }
 
-/* message colors */
 .msg-neutral { color:#cfd9ea; }
 .msg-good    { color:#8bffa4; }
 .msg-bad     { color:#ff7b7b; }
@@ -118,12 +117,11 @@ button.tile, div.tile {
   display:flex;
   gap:10px;
   align-items:center;
-  justify-content:center; /* CENTER CONTROLS */
-  margin-left:0;
+  justify-content:center;
 }
+
 .small {font-size:13px; color:#9fb0c8;}
 
-/* MOBILE ADJUSTMENTS */
 @media (max-width:520px){
   header {
     flex-direction: column;
@@ -169,7 +167,6 @@ button.tile, div.tile {
 </div>
 
 <script>
-// Your existing JS code remains the same (starter board, game logic, timer, etc.)
 (function(){
   const board = document.getElementById('board');
   const scoreEl = document.getElementById('score');
@@ -217,7 +214,12 @@ button.tile, div.tile {
   function endGame(){
     if(timerId) clearInterval(timerId); timerId = null;
     let finalMsg = `Game over — Score: ${score}`;
-    if(score > best){ best = score; localStorage.setItem('kukubest', best); bestEl.textContent = best; finalMsg += " — New best!"; }
+    if(score > best){
+      best = score;
+      localStorage.setItem('kukubest', best);
+      bestEl.textContent = best;
+      finalMsg += " — New best!";
+    }
     setMessage(finalMsg, "bad");
     showGameOverBoard();
   }
@@ -238,52 +240,74 @@ button.tile, div.tile {
     }
   }
 
-  function updateUI(){ scoreEl.textContent = score; levelEl.textContent = level; timeEl.textContent = timer; }
+  function updateUI(){
+    scoreEl.textContent = score;
+    levelEl.textContent = level;
+    timeEl.textContent = timer;
+  }
 
   function nextRound(){
     let numBoxes;
-    if(level===1) numBoxes=4; else if(level===2) numBoxes=9; else if(level===3) numBoxes=16;
-    else if(level===4||level===5) numBoxes=25; else if(level===6||level===7) numBoxes=36;
-    else if(level===8||level===9) numBoxes=49; else numBoxes=64;
+    if(level===1) numBoxes=4;
+    else if(level===2) numBoxes=9;
+    else if(level===3) numBoxes=16;
+    else if(level===4||level===5) numBoxes=25;
+    else if(level===6||level===7) numBoxes=36;
+    else if(level===8||level===9) numBoxes=49;
+    else numBoxes=64;
 
     const gridSize = Math.sqrt(numBoxes);
     difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
     board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     board.innerHTML = '';
+
     const hue = Math.floor(Math.random()*360);
     const sat = 60 + Math.random()*20;
     const light = 40 + Math.random()*20;
     const base = `hsl(${hue} ${sat}% ${light}%)`;
+
     const delta = difficulty * 100;
     const targetLight = light + (Math.random()<0.5 ? delta : -delta);
     const target = `hsl(${hue} ${sat}% ${targetLight}%)`;
+
     const targetIndex = Math.floor(Math.random()*numBoxes);
 
     for(let i=0;i<numBoxes;i++){
       const btn = document.createElement('button');
       btn.className = 'tile';
-      btn.style.background = (i===targetIndex) ? target : base;
-      btn.dataset.isTarget = (i===targetIndex) ? '1' : '0';
+      btn.style.background = (i===targetIndex ? target : base);
+      btn.dataset.isTarget = i===targetIndex ? '1' : '0';
       btn.addEventListener('click', onTileClick);
       board.appendChild(btn);
     }
   }
 
   function onTileClick(e){
-    const isTarget = e.currentTarget.dataset.isTarget === '1';
     if(!timerId) return;
+
+    const isTarget = e.currentTarget.dataset.isTarget === '1';
+
     if(feedbackTimeout) clearTimeout(feedbackTimeout);
     let penalty = 5 + Math.floor((level-1)/10);
+
     if(isTarget){
-      score += Math.max(1, Math.floor(5 + Math.sqrt(level))); level++; timer = Math.min(999, timer + 2); updateUI();
-      setMessage(`Nice! +2s`, "good");
-      feedbackTimeout = setTimeout(()=>{ if(timerId) setMessage('Find the odd tile!',"neutral"); },2500);
+      score += Math.max(1, Math.floor(5 + Math.sqrt(level)));
+      level++;
+      timer = Math.min(999, timer + 2);
+      updateUI();
+
+      setMessage("Nice! +2s","good");
+      feedbackTimeout = setTimeout(()=>{ if(timerId) setMessage("Find the odd tile!","neutral"); },2500);
+
       nextRound();
     } else {
-      timer = Math.max(0, timer - penalty); updateUI();
-      setMessage(`Wrong tile! -${penalty}s`, "bad");
-      feedbackTimeout = setTimeout(()=>{ if(timerId) setMessage('Find the odd tile!',"neutral"); },2500);
-      if(timer<=0) endGame();
+      timer = Math.max(0, timer - penalty);
+      updateUI();
+
+      setMessage(`Wrong tile! -${penalty}s`,"bad");
+      feedbackTimeout = setTimeout(()=>{ if(timerId) setMessage("Find the odd tile!","neutral"); },2500);
+
+      if(timer <= 0) endGame();
     }
   }
 
@@ -291,12 +315,15 @@ button.tile, div.tile {
     const starterGrid = 3;
     board.style.gridTemplateColumns = `repeat(${starterGrid}, 1fr)`;
     board.innerHTML = '';
-    const hue = Math.floor(Math.random()*360);
-    const sat = 60 + Math.random()*20;
-    const baseLight = 45 + Math.random()*10;
+
+    const hue = 0;        // RED ONLY
+    const sat = 80;
+    const baseLight = 45;
+
     for(let i=0;i<9;i++){
-      const diff = (Math.random()*10 - 5);
-      const light = baseLight + diff;
+      let diff = (Math.random()*20 - 10);
+      let light = baseLight + diff;
+
       const tile = document.createElement('div');
       tile.className = 'tile';
       tile.style.background = `hsl(${hue} ${sat}% ${light}%)`;
@@ -307,10 +334,11 @@ button.tile, div.tile {
 
   buildStarterBoard();
   startStarterAnimation();
+
   startBtn.addEventListener('click', startGame);
   resetBtn.addEventListener('click', resetGame);
-
 })();
 </script>
+
 </body>
 </html>
