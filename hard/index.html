@@ -144,6 +144,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
 
     <div class="scoreboard card">
       <div>Score: <strong id="score">0</strong></div>
+      <div>Best: <strong id="best">0</strong></div>
       <div>Level: <strong id="level">1</strong></div>
       <div>Time: <strong id="time">60</strong>s</div>
     </div>
@@ -169,6 +170,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
   const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
   const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
   const levelEl = document.getElementById("level");
   const timeEl = document.getElementById("time");
   const message = document.getElementById("message");
@@ -176,6 +178,9 @@ h1{font-size:26px; margin:0; font-weight:700;}
   let score = 0, level = 1, timer = 60, timerId = null;
   let starterInterval = null;
   let feedbackTimeout = null;
+
+  let best = Number(localStorage.getItem("hard_best_score")) || 0;
+  bestEl.textContent = best;
 
   function setMessage(txt, type="neutral"){
     message.textContent = txt;
@@ -196,7 +201,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
 
       const tile = document.createElement("div");
       tile.className = "tile";
-      tile.style.background = `hsl(0 70% ${light}%)`; /* RED ONLY */
+      tile.style.background = `hsl(0 70% ${light}%)`;
       tile.addEventListener("click", startGame);
       board.appendChild(tile);
     }
@@ -209,6 +214,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
 
   function updateUI(){
     scoreEl.textContent = score;
+    bestEl.textContent = best;
     levelEl.textContent = level;
     timeEl.textContent = timer;
   }
@@ -255,7 +261,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
     startBtn.disabled = false;
   }
 
-  /* GAME OVER GRID (4 BOXES) */
+  /* GAME OVER GRID */
   function showGameOverBoard(){
     board.style.gridTemplateColumns = "repeat(2,1fr)";
     board.innerHTML = "";
@@ -270,7 +276,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
     }
   }
 
-  /* HARD MODE ROUND GENERATION */
+  /* ROUND GENERATION */
   function nextRound(){
     let numTiles;
 
@@ -308,7 +314,7 @@ h1{font-size:26px; margin:0; font-weight:700;}
     }
   }
 
-  /* HARD MODE LOGIC */
+  /* CLICK LOGIC */
   function onTileClick(e){
     if(!timerId) return;
 
@@ -319,6 +325,12 @@ h1{font-size:26px; margin:0; font-weight:700;}
       score++;
       level++;
       timer = Math.min(999, timer + 2);
+
+      if(score > best){
+        best = score;
+        localStorage.setItem("hard_best_score", best);
+      }
+
       updateUI();
 
       setMessage("Nice! +2s", "good");
@@ -328,7 +340,6 @@ h1{font-size:26px; margin:0; font-weight:700;}
 
       nextRound();
     } else {
-      /* HARD MODE RESET */
       score = 0;
       level = 1;
       timer = 60;
