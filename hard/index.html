@@ -3,50 +3,131 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Color-Vision Game — Hard Mode</title>
 <style>
-:root {
+:root{
   --bg:#0e0f14; --card:#0f1720; --text:#e6eef8;
 }
-html, body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  touch-action: none;
-  font-family: Inter, system-ui, Segoe UI, Arial;
-  background: linear-gradient(180deg,#071022 0%, #0e1622 100%);
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+html,body{
+  height:100%;
+  margin:0;
+  overflow:hidden;
+  touch-action:none;
+  font-family:Inter,system-ui,Segoe UI,Arial;
+  background:linear-gradient(180deg,#071022 0%, #0e1622 100%);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.container {width: 100%; max-width: 980px; padding: 20px; box-sizing: border-box;}
-header {display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;}
-h1 {font-size: 20px; margin: 0;}
-.meta {display: flex; gap: 12px; align-items: center; flex-wrap: wrap;}
-.btn {
-  background: #1f2937;
-  border: 0;
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
+.container{
+  width:100%;
+  max-width:980px;
+  padding:20px;
+  box-sizing:border-box;
 }
-#board-wrap {display: flex; justify-content: center; align-items: center; margin-top: 14px; width: 100%;}
-#board {display: grid; gap: 6px; touch-action: manipulation; width: 100%; max-width: 480px;}
-button.tile {
-  border-radius: 8px;
-  border: 0;
-  outline: 0;
-  cursor: pointer;
-  display: block;
-  width: 100%;
-  aspect-ratio: 1/1;
+
+/* HEADER CENTERED */
+header{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  margin-bottom:18px;
+  gap:12px;
 }
-.small {font-size: 13px; color: #9fb0c8;}
+
+h1{font-size:26px; margin:0; font-weight:700;}
+.small{font-size:14px; color:#9fb0c8;}
+
+.meta{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+}
+
+.btn{
+  background:#1f2937;
+  border:0;
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  text-decoration:none;
+}
+
+.scoreboard{
+  display:flex; 
+  gap:12px; 
+  align-items:center; 
+  justify-content:center;
+}
+
+.card{
+  background:rgba(255,255,255,0.03);
+  padding:14px;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(2,6,23,0.6);
+}
+
+#board-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+}
+
+#board{
+  display:grid;
+  gap:6px;
+  width:100%;
+  max-width:480px;
+  touch-action:manipulation;
+}
+
+.tile{
+  border-radius:8px;
+  border:0;
+  outline:0;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  aspect-ratio:1/1;
+  color:var(--text);
+  font-weight:bold;
+  text-align:center;
+  transition: background 1.6s ease;
+}
+
+/* MESSAGE BOX */
+#message{
+  font-size:15px;
+  text-align:center;
+  min-width:240px;
+  margin:0 auto;
+  margin-top:20px;
+}
+
+.msg-neutral{color:#cfd9ea;}
+.msg-good{color:#8bffa4;}
+.msg-bad{color:#ff7b7b;}
+
+.controls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+}
+
 @media (max-width:520px){
-  header {flex-direction: column; align-items: flex-start; gap: 8px;}
+  header{text-align:center;}
 }
 </style>
 </head>
@@ -55,108 +136,216 @@ button.tile {
 <div class="container">
 
 <header>
-  <div>
-    <h1>Hard Mode</h1>
-    <div class="small">One mistake resets the entire game.</div>
-  </div>
+  <h1>Color-Vision Game — Hard Mode</h1>
+  <div class="small">One mistake resets the entire game.</div>
 
   <div class="meta">
-    <!-- Back button -->
     <a href="../" class="btn">Normal Mode</a>
-    <button id="startBtn" class="btn">Start</button>
+
+    <div class="scoreboard card">
+      <div>Score: <strong id="score">0</strong></div>
+      <div>Level: <strong id="level">1</strong></div>
+      <div>Time: <strong id="time">60</strong>s</div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="btn">Start</button>
+      <button id="resetBtn" class="btn">Reset</button>
+    </div>
   </div>
 </header>
 
 <div id="board-wrap">
-  <div id="board" aria-live="polite"></div>
+  <div id="board"></div>
 </div>
 
-<div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-  <div class="card small" id="message" style="padding:8px">Press Start to begin.</div>
+<div style="margin-top:14px; width:100%; display:flex; justify-content:center;">
+  <div class="card small msg-neutral" id="message">Press Start or Tap a Tile to Begin</div>
 </div>
 
 <script>
 (function(){
-  const board = document.getElementById('board');
-  const startBtn = document.getElementById('startBtn');
-  const message = document.getElementById('message');
+  const board = document.getElementById("board");
+  const startBtn = document.getElementById("startBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const scoreEl = document.getElementById("score");
+  const levelEl = document.getElementById("level");
+  const timeEl = document.getElementById("time");
+  const message = document.getElementById("message");
 
   let score = 0, level = 1, timer = 60, timerId = null;
-  let gridSize = 2, difficulty = 0.25;
+  let starterInterval = null;
+  let feedbackTimeout = null;
+
+  function setMessage(txt, type="neutral"){
+    message.textContent = txt;
+    message.className = `card small msg-${type}`;
+  }
+
+  /* STARTER BOARD – ALL RED SHADES */
+  function buildStarterBoard(){
+    const grid = 3;
+    board.style.gridTemplateColumns = `repeat(${grid},1fr)`;
+    board.innerHTML = "";
+
+    const baseLight = 45 + Math.random()*10;
+
+    for(let i=0;i<9;i++){
+      const diff = (Math.random()*20 - 10);
+      const light = Math.max(25, Math.min(70, baseLight + diff));
+
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.style.background = `hsl(0 70% ${light}%)`; /* RED ONLY */
+      tile.addEventListener("click", startGame);
+      board.appendChild(tile);
+    }
+  }
+
+  function startStarterAnimation(){
+    if(starterInterval) clearInterval(starterInterval);
+    starterInterval = setInterval(buildStarterBoard, 4000);
+  }
+
+  function updateUI(){
+    scoreEl.textContent = score;
+    levelEl.textContent = level;
+    timeEl.textContent = timer;
+  }
 
   function startGame(){
-    score = 0; level = 1; timer = 60;
+    if(starterInterval) clearInterval(starterInterval);
+
+    score = 0;
+    level = 1;
+    timer = 60;
     updateUI();
     nextRound();
+
     if(timerId) clearInterval(timerId);
     timerId = setInterval(()=>{
       timer--;
       updateUI();
       if(timer <= 0) endGame();
     },1000);
-    message.textContent = "Find the odd tile!";
+
+    setMessage("Find the odd tile!", "neutral");
     startBtn.disabled = true;
+  }
+
+  function resetGame(){
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+
+    score = 0; level = 1; timer = 60;
+    updateUI();
+
+    startBtn.disabled = false;
+    setMessage("Press Start or Tap a Tile to Begin", "neutral");
+    buildStarterBoard();
+    startStarterAnimation();
   }
 
   function endGame(){
     if(timerId) clearInterval(timerId);
     timerId = null;
-    message.textContent = `Game over — Score: ${score} | Level: ${level} | Time: ${timer}s`;
+
+    setMessage(`Game over — Score: ${score}`, "bad");
+    showGameOverBoard();
     startBtn.disabled = false;
   }
 
-  function updateUI(){
-    message.textContent = `Score: ${score} | Level: ${level} | Time: ${timer}s`;
+  /* GAME OVER GRID (4 BOXES) */
+  function showGameOverBoard(){
+    board.style.gridTemplateColumns = "repeat(2,1fr)";
+    board.innerHTML = "";
+
+    for(let i=0;i<4;i++){
+      const div = document.createElement("div");
+      div.className = "tile";
+      div.style.background = "#3d444c";
+      div.textContent = "GAME OVER";
+      div.addEventListener("click", startGame);
+      board.appendChild(div);
+    }
   }
 
+  /* HARD MODE ROUND GENERATION */
   function nextRound(){
-    gridSize = Math.min(2 + Math.floor((level-1)/1), 8);
-    difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
+    let numTiles;
 
-    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    board.innerHTML = '';
+    if(level===1) numTiles = 4;
+    else if(level===2) numTiles = 9;
+    else if(level===3) numTiles = 16;
+    else if(level===4 || level===5) numTiles = 25;
+    else if(level===6 || level===7) numTiles = 36;
+    else if(level===8 || level===9) numTiles = 49;
+    else numTiles = 64;
+
+    const grid = Math.sqrt(numTiles);
+    board.style.gridTemplateColumns = `repeat(${grid},1fr)`;
+    board.innerHTML = "";
 
     const hue = Math.floor(Math.random()*360);
     const sat = 60 + Math.random()*20;
     const light = 40 + Math.random()*20;
+
     const base = `hsl(${hue} ${sat}% ${light}%)`;
+    const difficulty = Math.max(0.08, 0.4 - (level-1)*0.02);
     const delta = difficulty * 100;
-    const targetLight = light + (Math.random() < 0.5 ? delta : -delta);
+    const targetLight = light + (Math.random()<0.5 ? delta : -delta);
+
     const target = `hsl(${hue} ${sat}% ${targetLight}%)`;
+    const targetIndex = Math.floor(Math.random()*numTiles);
 
-    const targetIndex = Math.floor(Math.random() * (gridSize*gridSize));
-
-    for(let i=0; i<gridSize*gridSize; i++){
-      const btn = document.createElement('button');
-      btn.className = 'tile';
+    for(let i=0;i<numTiles;i++){
+      const btn = document.createElement("button");
+      btn.className = "tile";
       btn.style.background = (i===targetIndex) ? target : base;
-      btn.dataset.isTarget = (i===targetIndex) ? '1' : '0';
-      btn.addEventListener('click', onTileClick);
+      btn.dataset.isTarget = (i===targetIndex) ? "1" : "0";
+      btn.addEventListener("click", onTileClick);
       board.appendChild(btn);
     }
   }
 
+  /* HARD MODE LOGIC */
   function onTileClick(e){
     if(!timerId) return;
-    const isTarget = e.currentTarget.dataset.isTarget === '1';
+
+    const isTarget = e.currentTarget.dataset.isTarget === "1";
+    if(feedbackTimeout) clearTimeout(feedbackTimeout);
+
     if(isTarget){
-      score += Math.max(1, Math.floor(5 + Math.sqrt(level)));
+      score++;
       level++;
       timer = Math.min(999, timer + 2);
       updateUI();
+
+      setMessage("Nice! +2s", "good");
+      feedbackTimeout = setTimeout(()=>{
+        if(timerId) setMessage("Find the odd tile!", "neutral");
+      },2000);
+
       nextRound();
     } else {
-      // Hard mode resets game
+      /* HARD MODE RESET */
       score = 0;
       level = 1;
       timer = 60;
       updateUI();
-      message.textContent = "Wrong! Game reset.";
+
+      setMessage("Wrong! Game Reset.", "bad");
+
       nextRound();
     }
   }
 
-  startBtn.addEventListener('click', startGame);
+  /* INIT */
+  buildStarterBoard();
+  startStarterAnimation();
+  startBtn.addEventListener("click", startGame);
+  resetBtn.addEventListener("click", resetGame);
+
 })();
 </script>
 
